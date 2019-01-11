@@ -13,7 +13,7 @@ The following steps will use [Vagrant](https://www.vagrantup.com/) to get you
 quickly up and running with the picoCTF platform by deploying the code base to
 two local virtual machines.
 
-1. `git clone -c core.autocrlf=false https://github.com/picoCTF/picoCTF.git`  
+1. `git clone -c core.autocrlf=false https://github.com/al3xfulton/picoCTF.git`  
    (see [this
    link](https://github.com/picoCTF/picoCTF/issues/68#issuecomment-346736808)
    for an explanation of this command line)
@@ -35,7 +35,6 @@ SIP is shell IP address (default is 192.168.2.2)
 WIP is web IP address (default is 192.68.2.3)
 
 J=2 M=6 SIP=192.168.2.53 WIP=192.168.2.52 vagrant up shell && SIP=192.168.2.53 WIP=192.168.2.52 vagrant up web
-
 
 ## Project Overview
 
@@ -167,6 +166,25 @@ development. Our internal system is:
 
 [ForAllSecure](https://forallsecure.com) offers professionally-run original
 hacking contests as a service.
+
+## Updating Vagrantbox for Distribution
+
+In order to speed up the installation process (particulalry useful for non-deployement instances, ie problem development) instances of the virtualbox boxes were created and pre-provisioned. With this, the updates and provisioning takes signifigantly less time to install (~10 min total) on fairly standard user hardware. As changes are made to both the updates on the machine, and updates to the provisioning process are made, these boxes may need to be recreated. The current process is:
+1. Ensure that the vagrantfile contiains `shell.vm.box = ubuntu/xenial64` and `web.vm.box = ubuntu/xenial64`.
+2. Run `vagrant up`.
+3. Upon completion of provisioning of both machines, ssh into each.
+4. Replace current ssh key-pair with unsecure instance which will be replaced on startup with: 
+```wget --no-check-certificate https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub -O /home/vagrant/.ssh/authorized_keys
+```
+5. Clean the installation using:
+```sudo apt-get clean
+sudo dd if=/dev/zero of=/EMPTY bs=1M
+sudo rm -f /EMPTY
+cat /dev/null > ~/.bash_history && history -c && exit
+```
+6. Package each of the boxes using: `vagrant package web --output web.box` and `vagrant package shell --output shell.box`.
+7. Upload each to vagrant cloud, ensuring a release.
+8. Replace `shell.vm.box` and `web.vm.box` within the Vagrantfile for distribution with the correct new arguements.
 
 ## Giving Back and Development
 
